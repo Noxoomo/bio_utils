@@ -11,3 +11,7 @@ libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
 libraryDependencies += "com.googlecode.concurrent-trees" % "concurrent-trees" % "2.4.0"
 
 libraryDependencies += "org.apache.commons" % "commons-math3" % "3.0"
+
+libraryDependencies += "org.apache.commons" % "commons-collections4" % "4.0"
+
+

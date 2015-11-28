@@ -32,33 +32,43 @@ object StringTools {
       }
       result.toString()
     }
+  }
 
-    final def slice(start: Int, end: Int): CharSequence = new StringSlice(str, start, end - start)
+  implicit class CharSeqHelper(seq: CharSequence) {
 
-    final def movingSlice(offset: Int, size: Int): CharSeqMovingSlice = new StringMovingSlice(str, offset, size)
+    final def viewSlice(start: Int, end: Int): CharSequence = new CharSequenceSlice(seq, start, end - start)
+
   }
 
 }
 
-class StringSlice(val owner: String, val offset: Int, val length: Int) extends CharSequence {
+class CharSequenceSlice(val owner: CharSequence, val offset: Int, val length: Int) extends CharSequence {
 
   override def charAt(index: Int): Char = owner.charAt(index + offset)
 
-  override def subSequence(start: Int, end: Int): CharSequence = new StringSlice(owner, offset + start, end - start)
+  override def subSequence(start: Int, end: Int): CharSequence = new CharSequenceSlice(owner, offset + start, end - start)
 }
 
-trait CharSeqMovingSlice extends CharSequence {
+
+//char seq should be immutable
+trait CharSeqMovingSlice {
   def moveNext(): Unit
+
+  def charAt(index: Int): Char
+
+  def subSequence(start: Int, end: Int): CharSequence
 }
 
-class StringMovingSlice(val owner: String, val startOffset: Int, val length: Int) extends CharSeqMovingSlice {
+class StringMovingSlice(val owner: CharSequence, val startOffset: Int, val length: Int) extends CharSeqMovingSlice {
   private var offset = 0
 
   override def charAt(index: Int): Char = owner.charAt(startOffset + offset + index)
 
-  override def subSequence(start: Int, end: Int): CharSequence = new StringSlice(owner, startOffset + offset + start, end - start)
+  override def subSequence(start: Int, end: Int): CharSequence = new CharSequenceSlice(owner, startOffset + offset + start, end - start)
 
-  def moveNext(): Unit = {
+  override def moveNext(): Unit = {
     offset += 1
   }
+
+  override def toString() = owner.subSequence(startOffset + offset, startOffset + offset + length).toString
 }

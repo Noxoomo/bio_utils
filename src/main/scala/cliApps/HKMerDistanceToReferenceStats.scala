@@ -24,20 +24,23 @@ object HKMerDistanceToReferenceStats {
   }
 
   val header = f"hkmerSize\tmetric\tgenomic\tvalue\tcount\n"
-  val sizes = Array(6, 8, 10, 12, 14, 16)
+  val sizes = Array(6) //, 8, 10, 12, 14, 16)
+
 
 
   def main(args: Array[String]) {
     val aligner = new SeqAligner[HRun](new HRunPenalty())
     val proceeder = new HRunReadsToReferenceFromSamProceeder(args(0), args(1))
-    val kmersSet = new RadixTreeHRunSet(proceeder.chromosome)
+    val kmersSet = new RadixTreeHRunSet(proceeder.chromosome, sizes.max)
     val hkmerStatBuilders = sizes.map(createMetrics(kmersSet, _))
 
     @inline
     def proceedRead(query: String, flag: Int, read: HRunSeq, readMeta: HRunSeqMeta, ref: HRunSeq): Unit = {
       val cigar = aligner(ref, read)
       val (alignedRef, alignedRead) = align(cigar, ref, read)
-      hkmerStatBuilders.par.foreach(_.proceedAlignedRead(alignedRef, alignedRead))
+      val alignedQualities = HRunSeqQuality.alignQuality(alignedRead, readMeta.qualities)
+      assert(alignedQualities.length == alignedRead.length)
+      hkmerStatBuilders.par.foreach(_.proceedAlignedRead(alignedRef, alignedRead, alignedQualities))
     }
     val startTime = System.currentTimeMillis()
     proceeder.proceed(proceedRead)
