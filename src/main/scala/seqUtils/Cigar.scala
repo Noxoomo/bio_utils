@@ -145,7 +145,7 @@ object Cigar {
     def build(): HRunSeq = buffer.toArray
   }
 
-  final def applyAndConvertToHRuns(cgr: Cigar, reference: String, read: String): (HRunSeq, HRunSeq, Cigar) = {
+  final def applyAndConvertToHRuns(cgr: Cigar, reference: CharSequence, read: CharSequence): (HRunSeq, HRunSeq, Cigar) = {
     val cigar = cgr.operations
     val refBuilder = new THRunSeqBuilder()
     val readBuilder = new THRunSeqBuilder()
@@ -219,6 +219,18 @@ object Cigar {
 }
 
 class Cigar(val operations: Array[Int]) extends Iterable[Int] {
+
+  def withoutClipping()  = {
+    val tmp =  new TIntArrayList(operations.length)
+    var i = 0
+    while (i < operations.length) {
+      if (Cigar.operationType(operations(i)) != 'S') {
+        tmp.add(operations(i))
+      }
+      i += 1
+    }
+    new Cigar(tmp.toArray())
+  }
 
   final override def iterator: Iterator[Int] = new SpecializedIterator[Int] {
     var offset: Int = 0

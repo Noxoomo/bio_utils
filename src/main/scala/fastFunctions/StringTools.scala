@@ -32,14 +32,32 @@ object StringTools {
       }
       result.toString()
     }
+
+    final def reverseComplementary(): String = str.toUpperCase.reverse.map({
+      case 'A' => 'T'
+      case 'T' => 'A'
+      case 'G' => 'C'
+      case 'C' => 'G'
+    })
   }
 
   implicit class CharSeqHelper(seq: CharSequence) {
-
     final def viewSlice(start: Int, end: Int): CharSequence = new CharSequenceSlice(seq, start, end - start)
+
+    final def reverse(): CharSequence = new ReverseCharSequence(seq)
 
   }
 
+}
+
+
+class ReverseCharSequence(val owner: CharSequence) extends CharSequence {
+
+  override def charAt(index: Int): Char = owner.charAt(owner.length() - index - 1)
+
+  override def subSequence(start: Int, end: Int): CharSequence = new CharSequenceSlice(this, start, end - start)
+
+  override def length(): Int = owner.length()
 }
 
 class CharSequenceSlice(val owner: CharSequence, val offset: Int, val length: Int) extends CharSequence {

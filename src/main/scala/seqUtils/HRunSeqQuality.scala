@@ -23,20 +23,20 @@ object HRunSeqQuality {
   def alignQuality(read: HRunSeq, qualities: Array[String]): Array[Double] = {
     val quality = new TDoubleArrayList()
     @tailrec
-    def helper(offset: Int, qualityOffest: Int): Unit = {
+    def helper(offset: Int, qualityOffset: Int): Unit = {
       if (offset < read.length) {
         val len = size(read(offset))
         var i = 0
         var qual = 0.0
         if (len > 0) {
-          val row = qualities(qualityOffest)
+          val row = qualities(qualityOffset)
           while (i < row.length) {
             qual += qualityToLogCorrectProb(row.charAt(i))
             i += 1
           }
         }
         quality.add(qual)
-        helper(offset + 1, qualityOffest + (if (len > 0) 1 else 0))
+        helper(offset + 1, qualityOffset + (if (len > 0) 1 else 0))
       }
     }
     helper(0, 0)

@@ -3,7 +3,8 @@ package seqUtils
 import com.googlecode.concurrenttrees.radix.ConcurrentRadixTree
 import com.googlecode.concurrenttrees.radix.node.concrete.SmartArrayBasedNodeFactory
 import fastFunctions.StringTools.CharSeqHelper
-import seqUtils.HRunHelper.{stringToHRunSeq, _}
+import gnu.trove.list.array.TCharArrayList
+import seqUtils.HRunHelper._
 /**
  * User: Noxoomo
  * Date: 26.11.15
@@ -11,14 +12,15 @@ import seqUtils.HRunHelper.{stringToHRunSeq, _}
  */
 
 
-class RadixTreeHRunSet(val genom: String, val maxKMerSize: Int = 16) extends Set[HRunSeq] {
+class RadixTreeHRunSet(val genom: String, val maxKMerSize: Int = 32) extends Set[HRunSeq] {
 
-  val genomSeq = mapToCharSeq(stringToHRunSeq(genom))
-  val genomSeqReverse = mapToCharSeq(stringToHRunSeq(genom, reverse = true))
+  val genomSeq = genom
+  val genomSeqReverse = genom.reverse
 
   case class Value()
 
   val emptyValue = Value()
+
   val trie = {
     val tree = new ConcurrentRadixTree[Value](new SmartArrayBasedNodeFactory)
 
@@ -34,29 +36,28 @@ class RadixTreeHRunSet(val genom: String, val maxKMerSize: Int = 16) extends Set
   }
 
   def mapToCharSeq(hkmerSeq: HRunSeq): CharSequence = {
-    new ArrayCharSequence(hkmerSeq.map(hrun => {
-      val b = base(hrun)
+    val result = new TCharArrayList()
+    for (hrun <- hkmerSeq) {
       val sz = HRunHelper.size(hrun)
-      assert(sz < 32)
-      val id: Int = if (b == 'A') {
-        0
-      } else if (b == 'T') {
-        1
-      } else if (b == 'C') {
-        2
-      } else if (b == 'G') {
-        3
-      } else {
-        throw new RuntimeException("wrong argument")
+      val b = base(hrun)
+      for (i <- 0 until sz) {
+        result.add(b)
       }
-      ((sz << 2) | id).toChar
-    }))
+    }
+    new ArrayCharSequence(result.toArray)
   }
 
-  override def contains(hkmer: HRunSeq): Boolean = {
-    val seq = mapToCharSeq(hkmer)
-    if (seq.length <= maxKMerSize) trie.getKeysStartingWith(seq).iterator().hasNext else throw new RuntimeException("wrong hkmer size")
+  def contains(seq: CharSequence): Boolean = {
+    if (seq.length == 0) {
+      true
+    } else if (seq.length() <= maxKMerSize) trie.getKeysStartingWith(seq).iterator().hasNext
+    else {
+      print(f"Long hkmer: ${seq.length}")
+      genomSeq.contains(seq) || genomSeqReverse.contains(seq)
+    }
   }
+
+  override def contains(hkmer: HRunSeq): Boolean = contains(mapToCharSeq(hkmer))
 
   override def +(elem: HRunSeq): Set[HRunSeq] = throw new UnsupportedOperationException
 

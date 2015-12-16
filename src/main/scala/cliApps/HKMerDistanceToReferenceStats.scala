@@ -20,26 +20,23 @@ object HKMerDistanceToReferenceStats {
   }
 
   def createMetrics(genomHKMers: Set[HRunSeq], size: Int): HKMerDistanceStat = {
-    new HKMerDistanceStat(List(wrap(new HRunHamming, genomHKMers), wrap(new HRunLevenstein, genomHKMers)), hkmerSize = sizes(0))
+    new HKMerDistanceStat(List(wrap(new HRunHamming, genomHKMers), wrap(new HRunLevenstein, genomHKMers)), hkmerSize = size)
   }
 
-  val header = f"hkmerSize\tmetric\tgenomic\tvalue\tcount\n"
-  val sizes = Array(6) //, 8, 10, 12, 14, 16)
-
+  val header = f"hkmerSize\tgoodProb\tmetric\tgenomic\tvalue\tcount\n"
+  val sizes = Array(8, 12, 16, 20)
 
 
   def main(args: Array[String]) {
     val aligner = new SeqAligner[HRun](new HRunPenalty())
     val proceeder = new HRunReadsToReferenceFromSamProceeder(args(0), args(1))
-    val kmersSet = new RadixTreeHRunSet(proceeder.chromosome, sizes.max)
+    val kmersSet = new RadixTreeHRunSet(proceeder.chromosome, sizes.max * 2)
     val hkmerStatBuilders = sizes.map(createMetrics(kmersSet, _))
 
     @inline
-    def proceedRead(query: String, flag: Int, read: HRunSeq, readMeta: HRunSeqMeta, ref: HRunSeq): Unit = {
-      val cigar = aligner(ref, read)
+    def proceedRead(query: String, flag: Int, cigar: Cigar, read: HRunSeq, readMeta: HRunSeqMeta, ref: HRunSeq): Unit = {
       val (alignedRef, alignedRead) = align(cigar, ref, read)
       val alignedQualities = HRunSeqQuality.alignQuality(alignedRead, readMeta.qualities)
-      assert(alignedQualities.length == alignedRead.length)
       hkmerStatBuilders.par.foreach(_.proceedAlignedRead(alignedRef, alignedRead, alignedQualities))
     }
     val startTime = System.currentTimeMillis()
@@ -47,7 +44,7 @@ object HKMerDistanceToReferenceStats {
     val endTime = System.currentTimeMillis()
     val writer = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(args(2)), 64 * 1024))
     writer.write(header)
-    hkmerStatBuilders.zip(sizes).foreach({ case (builder, size) => writer.write(builder.toCsv(prefix = f"$size\t")) })
+    hkmerStatBuilders.zip(sizes).foreach({ case (builder, size) => writer.write(builder.toCsv(prefix = f"$size")) })
     println(f"Working time: ${endTime - startTime}")
     writer.flush()
     writer.close()
