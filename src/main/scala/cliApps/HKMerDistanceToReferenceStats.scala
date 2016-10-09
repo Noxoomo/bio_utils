@@ -3,7 +3,7 @@ package cliApps
 import java.io.{FileOutputStream, OutputStreamWriter}
 import java.util.zip.GZIPOutputStream
 
-import seqUtils.HRunHelper.{HRun, HRunSeq, HRunSeqMeta, _}
+import seqUtils.HRunHelper.{HRunSeq, HRunSeqMeta, _}
 import seqUtils._
 
 /**
@@ -24,13 +24,12 @@ object HKMerDistanceToReferenceStats {
   }
 
   val header = f"hkmerSize\tgoodProb\tmetric\tgenomic\tvalue\tcount\n"
-  val sizes = Array(8, 12, 16, 20)
+  val sizes = Array(10, 16, 20)
 
 
   def main(args: Array[String]) {
-    val aligner = new SeqAligner[HRun](new HRunPenalty())
     val proceeder = new HRunReadsToReferenceFromSamProceeder(args(0), args(1))
-    val kmersSet = new RadixTreeHRunSet(proceeder.chromosome, sizes.max * 2)
+    val kmersSet = new RadixTreeHRunSet(proceeder.chromosome, sizes.max * 3)
     val hkmerStatBuilders = sizes.map(createMetrics(kmersSet, _))
 
     @inline

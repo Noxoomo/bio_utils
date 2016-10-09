@@ -1,9 +1,5 @@
 package seqUtils
 
-import com.googlecode.concurrenttrees.radix.ConcurrentRadixTree
-import com.googlecode.concurrenttrees.radix.node.concrete.SmartArrayBasedNodeFactory
-import fastFunctions.StringTools.CharSeqHelper
-
 /**
  * User: Noxoomo
  * Date: 26.11.15
@@ -40,7 +36,10 @@ class SimpleTrie(val genom: String, val maxKMerSize: Int = 32) extends Set[CharS
     }
   }
 
-  override def +(elem: CharSequence): Set[CharSequence] = throw new UnsupportedOperationException
+  override def +(elem: CharSequence): Set[CharSequence] = {
+    trie.putIfAbsent(elem, emptyValue)
+    this
+  }
 
   override def -(elem: CharSequence): Set[CharSequence] = throw new UnsupportedOperationException
 

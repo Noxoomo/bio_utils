@@ -1,10 +1,6 @@
 package seqUtils
 
 import fastFunctions.VecTools
-import gnu.trove.list.array.{TDoubleArrayList, TIntArrayList}
-import gnu.trove.map.hash.TIntLongHashMap
-import gnu.trove.procedure.TIntLongProcedure
-import org.apache.commons.math3.util.FastMath
 import seqUtils.HRunHelper.{HRun, HRunSeq, _}
 
 /**
@@ -55,7 +51,7 @@ class HRunLevenstein extends HKMerDistance {
 
 
 class HRunDistanceWithGenomicFlag(base: HKMerDistance, genom: Set[HRunSeq]) extends HKMerDistance {
-  override def name(): String = f"genomic_${base.name()}"
+  override def name(): String = base.name()
 
   override def apply(read: HRunSeq, ref: HRunSeq): Int = {
     //    assert(genom.contains(ref))
@@ -181,19 +177,25 @@ class HKMerDistanceStat(val metrics: Seq[HKMerDistance], val hkmerSize: Int = 16
 
   def proceedAlignedRead(ref: HRunSeq, read: HRunSeq, readQuality: Array[Double] = null): Unit = {
     var offset = 0
+    val readBuilder = new TIntArrayList()
+    val refBuilder = new TIntArrayList()
+    val qualBuilder = new TDoubleArrayList()
+    var maxCapacity = 0
     while (offset < read.length - hkmerSize) {
       if (HRunHelper.size(ref(offset)) > 0) {
-        val readBuilder = new TIntArrayList()
-        val refBuilder = new TIntArrayList()
-        val qualBuilder = new TDoubleArrayList()
-        while (offset < read.length && readBuilder.size() < hkmerSize) {
-          readBuilder.add(read(offset))
-          refBuilder.add(ref(offset))
+        readBuilder.clear(maxCapacity)
+        refBuilder.clear(maxCapacity)
+        qualBuilder.clear(maxCapacity)
+        var i = 0
+        while (offset + i < read.length && readBuilder.size() < hkmerSize) {
+          readBuilder.add(read(offset + i))
+          refBuilder.add(ref(offset + i))
           if (readQuality != null) {
-            qualBuilder.add(readQuality(offset))
+            qualBuilder.add(readQuality(offset + i))
           }
-          offset += 1
+          i += 1
         }
+        maxCapacity = Math.max(readBuilder.size(), maxCapacity)
         calcMetrics(ref = refBuilder.toArray(), read = readBuilder.toArray(), readQuality = if (qualBuilder.size() > 0) qualBuilder.toArray() else null)
       }
       offset += 1

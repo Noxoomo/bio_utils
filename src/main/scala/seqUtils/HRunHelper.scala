@@ -1,12 +1,7 @@
 package seqUtils
 
 
-import fastFunctions.StringTools.StringToolsFastHelper
 import fastFunctions.VecTools
-import gnu.trove.list.array.TIntArrayList
-import org.apache.commons.math3.util.FastMath
-
-import scala.annotation.tailrec
 
 
 object HRunHelper {
@@ -156,6 +151,16 @@ object HRunHelper {
     val proceeder = new CigarProceeder(addHRuns)
     proceeder.proceed(cigar, reference, read)
     (refBuilder.toArray, readBuilder.toArray)
+  }
+
+  final def mkString(hrun: HRun): String = {
+    val builder = new StringBuilder
+    val hrunBase = base(hrun)
+    val hrunSize = size(hrun)
+    for (j <- 0 until hrunSize) {
+      builder.append(hrunBase)
+    }
+    builder.toString
   }
 
   final def mkString(seq: HRunSeq) = {

@@ -3,12 +3,7 @@ package cliApps
 import java.io.{FileOutputStream, OutputStreamWriter}
 import java.util.zip.GZIPOutputStream
 
-import fastFunctions.StringTools.StringToolsFastHelper
-import gnu.trove.map.hash.TDoubleLongHashMap
-import gnu.trove.procedure.TDoubleLongProcedure
 import seqUtils._
-
-import scala.io.Source
 
 /**
  * User: Noxoomo
@@ -38,8 +33,9 @@ object GenomicClusterCenters {
     val startTime = System.currentTimeMillis()
     val writer = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(args(2)), 64 * 1024))
     writer.write(header)
+    val discretizationLevel = args(3).toInt
     Source.fromFile(args(1)).getLines().grouped(2).foreach(entry => {
-      val quality = (entry.head.split("_")(2).toDouble * 100000).toInt * 0.00001
+      val quality = (entry.head.split("_")(2).toDouble * discretizationLevel).toInt * 1.0 / discretizationLevel
       add(quality, kmersSet.contains(entry(1)) || kmersComplSet.contains(entry(1)))
     })
     stats.forEachEntry(new TDoubleLongProcedure {
