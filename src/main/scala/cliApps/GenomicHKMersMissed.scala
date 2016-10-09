@@ -2,6 +2,8 @@ package cliApps
 
 import seqUtils._
 
+import scala.io.Source
+import fastFunctions.StringTools._
 /**
   * User: Noxoomo
   * Date: 18.10.15

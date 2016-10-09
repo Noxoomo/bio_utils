@@ -3,9 +3,14 @@ package cliApps
 import java.io.{FileOutputStream, OutputStreamWriter}
 import java.util.zip.GZIPOutputStream
 
+import org.apache.commons.math3.util.FastMath
 import seqUtils.Cigar
 import seqUtils.Cigar._
 import seqUtils.HRunHelper._
+import fastFunctions.StringTools._
+
+import scala.annotation.tailrec
+import scala.io.Source
 
 /**
   * User: Noxoomo
@@ -137,7 +142,7 @@ object Comparator {
     }
 
     val startTime = System.currentTimeMillis()
-    Source.fromFile(args(1)).getLines().grouped(numThreads * blockSize).foreach(_.grouped(blockSize).toSeq.par.foreach(_.foreach(proceedLine)))
+    Source.fromFile(args(1)).getLines().filterNot(_.charAt(0) == '@').grouped(numThreads * blockSize).foreach(_.grouped(blockSize).toSeq.par.foreach(_.foreach(proceedLine)))
     val endTime = System.currentTimeMillis()
     writer.writer.flush()
     writer.writer.close()

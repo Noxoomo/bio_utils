@@ -2,7 +2,11 @@ package seqUtils
 
 
 import fastFunctions.VecTools
+import gnu.trove.list.array.TIntArrayList
+import org.apache.commons.math3.util.FastMath
 
+import scala.annotation.tailrec
+import fastFunctions.StringTools._
 
 object HRunHelper {
   type HRun = Int

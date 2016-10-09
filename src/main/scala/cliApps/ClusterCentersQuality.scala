@@ -2,6 +2,9 @@ package cliApps
 
 import seqUtils._
 
+import scala.io.Source
+import fastFunctions.StringTools._
+
 /**
   * User: Noxoomo
   * Date: 18.10.15
@@ -15,8 +18,8 @@ object ClusterCentersQuality {
     val chromosome = Source.fromFile(args(0)).getLines().drop(1).mkString("")
 
     //    val centersSet = new SimpleTrie("", chromosome.length)
-    val centerKmers = new mutable.HashSet[String]()
-    val refKmers = new mutable.HashSet[String]()
+    val centerKmers = new scala.collection.mutable.HashSet[String]()
+    val refKmers = new scala.collection.mutable.HashSet[String]()
 
     val startTime = System.currentTimeMillis()
 

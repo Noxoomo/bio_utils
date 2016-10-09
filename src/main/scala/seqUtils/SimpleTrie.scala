@@ -1,5 +1,8 @@
 package seqUtils
 
+import com.googlecode.concurrenttrees.radix.ConcurrentRadixTree
+import com.googlecode.concurrenttrees.radix.node.concrete.SmartArrayBasedNodeFactory
+import fastFunctions.StringTools._
 /**
  * User: Noxoomo
  * Date: 26.11.15

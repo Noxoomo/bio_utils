@@ -1,8 +1,12 @@
 package seqUtils
 
 import fastFunctions.VecTools
+import gnu.trove.list.array.{TDoubleArrayList, TIntArrayList}
+import gnu.trove.map.hash.TIntLongHashMap
+import gnu.trove.procedure.TIntLongProcedure
+import org.apache.commons.math3.util.FastMath
 import seqUtils.HRunHelper.{HRun, HRunSeq, _}
-
+import fastFunctions.StringTools._
 /**
  * User: Noxoomo
  * Date: 21.11.15

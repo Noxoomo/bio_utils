@@ -6,6 +6,13 @@ import java.util.zip.GZIPOutputStream
 import seqUtils.Cigar
 import seqUtils.Cigar._
 import seqUtils.HRunHelper.{HRun, HRunSeq, HRunSeqMeta, _}
+import fastFunctions.StringTools._
+import gnu.trove.map.hash.TLongLongHashMap
+import gnu.trove.procedure.TLongLongProcedure
+import org.apache.commons.math3.util.FastMath
+
+import scala.annotation.tailrec
+import scala.io.Source
 
 /**
   * User: Noxoomo

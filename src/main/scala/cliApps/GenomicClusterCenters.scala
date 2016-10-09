@@ -3,7 +3,11 @@ package cliApps
 import java.io.{FileOutputStream, OutputStreamWriter}
 import java.util.zip.GZIPOutputStream
 
+import gnu.trove.map.hash.TDoubleLongHashMap
+import gnu.trove.procedure.TDoubleLongProcedure
 import seqUtils._
+import fastFunctions.StringTools._
+import scala.io.Source
 
 /**
  * User: Noxoomo
