@@ -65,6 +65,12 @@ object Comparator {
           }
           helper(cigarOffset + 1, refOffset + i, readOffset + i)
         } else if (oprType == 'I') {
+          var i = 0
+          while (i < oprSize) {
+            val fakeRead = hrun(base(reference(refOffset + i)), 0)
+            addHRuns(reference(refOffset + i), fakeRead)
+            i += 1
+          }
           helper(cigarOffset + 1, refOffset + oprSize, readOffset)
         } else {
           var i = 0
